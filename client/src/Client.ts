@@ -13,7 +13,7 @@ export class Client {
 
       this.socket = new Socket();
 
-      this.socket.connect(port, host, function () {
+      this.socket.connect(port, host, () => {
         const db = new Db(this.socket);
         res(db);
       });

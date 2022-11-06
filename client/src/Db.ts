@@ -6,8 +6,8 @@ export class Db {
   public Note: Note;
   public User: User;
 
-  constructor(client: Socket) {
-    this.Note = new Note(client);
-    this.User = new User(client);
+  constructor(socket: Socket) {
+    this.Note = new Note(socket);
+    this.User = new User(socket);
   }
 }

@@ -1,9 +1,10 @@
 import assert from "assert";
-import { Client } from "../src/Client";
+import { Client } from "../Client";
 
 async function run() {
   const client = new Client("127.0.0.1:7070");
   const db = await client.connect();
+
   const Note = db.Note;
   const User = db.User;
 

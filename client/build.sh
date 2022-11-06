@@ -1,0 +1,1 @@
+esbuild src/test/Client.spec.ts --bundle --platform=node --outdir=built

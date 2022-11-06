@@ -1,0 +1,1 @@
+esbuild src/server.ts --bundle --platform=node --outdir=built --minify

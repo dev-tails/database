@@ -8,10 +8,12 @@ const host = "127.0.0.1";
 
 let collections = {};
 try {
-  const stats = statSync("db");
-  if (!stats.isDirectory()) {{
+  try {
+    statSync("db");
+  } catch(err:any) {
     mkdirSync("db");
-  }}
+  }
+
   const filenames = readdirSync("db");
   for (const filename of filenames) {
     const collectionName = filename.split('.')[0];
