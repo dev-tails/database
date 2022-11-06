@@ -41,6 +41,18 @@ const Note = {
       );
     })
   },
+  async deleteOne(data: any): Promise<void> {
+    return new Promise((res) => {
+      client.once("data", function (data) {
+        res();
+      });
+      client.write(
+        JSON.stringify({
+          deleteOne: data,
+        })
+      );
+    })
+  }
 };
 
 async function run() {
@@ -48,7 +60,7 @@ async function run() {
     body: "this is a test",
   });
   const note = await Note.findById(id);
-  console.log(note);
+  await Note.deleteOne({ id });
 }
 
 run();

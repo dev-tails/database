@@ -18,6 +18,13 @@ server.on("connection", function (sock) {
       const note = notesById[id];
 
       sock.write(JSON.stringify(note));
+    } else if(jsonData.deleteOne) {
+      const { id } = jsonData.deleteOne;
+      delete notesById[id];
+
+      saveToFile();
+
+      sock.write("");
     } else {
       const id = new Date().getTime();
 
@@ -26,9 +33,13 @@ server.on("connection", function (sock) {
         id,
       };
 
-      writeFile("notes.json", JSON.stringify(notesById), () => {});
+      saveToFile();
 
       sock.write(String(id));
     }
   });
 });
+
+function saveToFile() {
+  writeFile("notes.json", JSON.stringify(notesById), () => {});
+}
