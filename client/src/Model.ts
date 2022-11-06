@@ -2,10 +2,12 @@ import { Socket } from "net";
 
 export class Model<T> {
   constructor(private collection: string, private socket: Socket) {}
-  async insertOne(data: Partial<T>): Promise<number> {
+  async insertOne(data: Partial<T>): Promise<{ insertedId: number }> {
     return new Promise((res) => {
       this.socket.once("data", function (data) {
-        res(parseInt(String(data)));
+        res({
+          insertedId: parseInt(String(data)),
+        });
       });
       this.socket.write(
         JSON.stringify({
@@ -33,7 +35,7 @@ export class Model<T> {
     });
   }
 
-  async findOne(filter: { id: number }): Promise<T> {
+  async findOne(filter: Partial<T>): Promise<T> {
     return new Promise((res) => {
       this.socket.once("data", function (data) {
         const parsed = JSON.parse(String(data));

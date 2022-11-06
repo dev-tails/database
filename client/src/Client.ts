@@ -7,12 +7,14 @@ export class Client {
 
   public async connect(): Promise<Db> {
     return new Promise((res) => {
-      const splitUri = this.uri.split(":");
+      const splitUri = this.uri.replace("engramdb://", "").split(":");
       const host = splitUri[0];
       const port = Number(splitUri[1]);
 
       this.socket = new Socket();
 
+      console.log(`Connecting to ${host}:${port}`);
+        
       this.socket.connect(port, host, () => {
         const db = new Db(this.socket);
         res(db);
