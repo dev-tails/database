@@ -4,9 +4,11 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "esbuild src/database.ts --bundle --platform=node --outfile=built/database.js"
+    "dev": "concurrently -k -n build,db \"./dev.sh\" \"node --watch built/server/server.js\""
   },
   "devDependencies": {
+    "@types/node": "^18.11.9",
+    "concurrently": "^7.5.0",
     "esbuild": "^0.15.13"
   }
 }

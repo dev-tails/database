@@ -1,0 +1,1 @@
+esbuild src/server/server.ts src/client/client.ts --bundle --platform=node --outdir=built --watch
