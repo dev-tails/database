@@ -24,7 +24,7 @@ server.on("connection", function (sock) {
 
       saveToFile();
 
-      sock.write("");
+      sock.write("0");
     } else if (jsonData.updateOne) {
       const {
         filter: { id },
@@ -38,7 +38,7 @@ server.on("connection", function (sock) {
 
       saveToFile();
 
-      sock.write("");
+      sock.write("0");
     } else {
       const id = new Date().getTime();
 

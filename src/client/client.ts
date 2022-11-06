@@ -72,11 +72,17 @@ const Note = {
 };
 
 async function run() {
+  console.time('create')
   const id = await Note.create({
     body: "this is a test",
   });
+  console.timeEnd('create')
+  console.time('updateOne')
   await Note.updateOne({ id }, { body: "this was modified" });
+  console.timeEnd('updateOne')
+  console.time('findById')
   const note = await Note.findById(id);
+  console.timeEnd('findById')
   assert.equal(note.body, "this was modified");
 }
 
