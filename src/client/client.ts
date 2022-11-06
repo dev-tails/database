@@ -110,6 +110,7 @@ async function run() {
   assert.equal(notes.length, 2);
 
   await Note.deleteOne({id});
+  await Note.deleteOne({id: id2});
   const note2 = await Note.findOne({ id });
   assert.equal(null, note2);
 

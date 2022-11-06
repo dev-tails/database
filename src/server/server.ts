@@ -29,23 +29,24 @@ server.on("connection", function (sock) {
       if (filter.id) {
         const note = notesById[filter.id] || null;
 
-        return sock.write(JSON.stringify([note]));
-      }
-
-      const filterKeys = Object.keys(filter);
-      let notes: any[] = [];
-      for (const id of Object.keys(notesById)) {
-        const note = notesById[id];
-        let includeNote = true;
-        for (const filterKey of filterKeys) {
-          if (note[filterKey] !== filter[filterKey]) {
-            includeNote = false;
-            break;
+        sock.write(JSON.stringify([note]));
+      } else {
+        const filterKeys = Object.keys(filter);
+        let notes: any[] = [];
+        for (const id of Object.keys(notesById)) {
+          const note = notesById[id];
+          let includeNote = true;
+          for (const filterKey of filterKeys) {
+            if (note[filterKey] !== filter[filterKey]) {
+              includeNote = false;
+              break;
+            }
+          }
+          if (includeNote) {
+            notes.push(note);
           }
         }
-        if (includeNote) {
-          notes.push(note);
-        }
+        sock.write(JSON.stringify(notes));
       }
     } else if (jsonData.deleteOne) {
       const { id } = jsonData.deleteOne;
