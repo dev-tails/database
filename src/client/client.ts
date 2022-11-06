@@ -1,3 +1,4 @@
+import assert from "assert";
 import net from "net";
 const client = new net.Socket();
 const port = 7070;
@@ -28,7 +29,7 @@ const Note = {
       );
     });
   },
-  async findById(id: number) {
+  async findById(id: number): Promise<NoteType> {
     return new Promise((res) => {
       client.once("data", function (data) {
         const parsed = JSON.parse(String(data));
@@ -39,7 +40,22 @@ const Note = {
           findById: id,
         })
       );
-    })
+    });
+  },
+  async updateOne(filter: any, data: any): Promise<void> {
+    return new Promise((res) => {
+      client.once("data", function (data) {
+        res();
+      });
+      client.write(
+        JSON.stringify({
+          updateOne: {
+            filter,
+            data,
+          },
+        })
+      );
+    });
   },
   async deleteOne(data: any): Promise<void> {
     return new Promise((res) => {
@@ -51,16 +67,17 @@ const Note = {
           deleteOne: data,
         })
       );
-    })
-  }
+    });
+  },
 };
 
 async function run() {
   const id = await Note.create({
     body: "this is a test",
   });
+  await Note.updateOne({ id }, { body: "this was modified" });
   const note = await Note.findById(id);
-  await Note.deleteOne({ id });
+  assert.equal(note.body, "this was modified");
 }
 
 run();

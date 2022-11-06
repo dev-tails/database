@@ -18,9 +18,23 @@ server.on("connection", function (sock) {
       const note = notesById[id];
 
       sock.write(JSON.stringify(note));
-    } else if(jsonData.deleteOne) {
+    } else if (jsonData.deleteOne) {
       const { id } = jsonData.deleteOne;
       delete notesById[id];
+
+      saveToFile();
+
+      sock.write("");
+    } else if (jsonData.updateOne) {
+      const {
+        filter: { id },
+        data,
+      } = jsonData.updateOne;
+      const oldData = notesById[id];
+      notesById[id] = {
+        ...oldData,
+        ...data,
+      };
 
       saveToFile();
 
