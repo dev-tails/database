@@ -17,14 +17,14 @@ type NoteType = {
 };
 
 const Note = {
-  async create(data: NoteType): Promise<number> {
+  async insertOne(data: NoteType): Promise<number> {
     return new Promise((res) => {
       client.once("data", function (data) {
         res(parseInt(String(data)));
       });
       client.write(
         JSON.stringify({
-          ...data,
+          insertOne: data,
         })
       );
     });
@@ -74,11 +74,11 @@ const Note = {
 };
 
 async function run() {
-  console.time('create')
-  const id = await Note.create({
+  console.time('insertOne')
+  const id = await Note.insertOne({
     body: "this is a test",
   });
-  console.timeEnd('create')
+  console.timeEnd('insertOne')
   console.time('updateOne')
   await Note.updateOne({ id }, { body: "this was modified" });
   console.timeEnd('updateOne')

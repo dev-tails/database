@@ -50,11 +50,11 @@ server.on("connection", function (sock) {
       saveToFile();
 
       sock.write("0");
-    } else {
+    } else if (jsonData.insertOne) {
       const id = new Date().getTime();
 
       notesById[id] = {
-        ...jsonData,
+        ...jsonData.insertOne,
         id,
       };
 
