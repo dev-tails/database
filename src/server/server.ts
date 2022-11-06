@@ -1,20 +1,29 @@
-import { writeFile } from "fs";
+import { writeFileSync, readFileSync } from "fs";
 import net from "net";
+
+console.time("init");
+
 const port = 7070;
 const host = "127.0.0.1";
 
-const notesById: { [id: string]: any } = {};
+let notesById: { [id: string]: any } = {};
+
+const notesFileContents = readFileSync("notes.json");
+if (notesFileContents) {
+  notesById = JSON.parse(String(notesFileContents));
+}
 
 const server = net.createServer();
 server.listen(port, host, () => {
-  console.log("TCP Server is running on port " + port + ".");
+  console.timeEnd("init");
 });
 
 server.on("connection", function (sock) {
   sock.on("data", function (data) {
+    console.time('op')
     const jsonData = JSON.parse(String(data));
-    if (jsonData.findById) {
-      const id = jsonData.findById;
+    if (jsonData.findOne) {
+      const { id } = jsonData.findOne.filter;
       const note = notesById[id];
 
       sock.write(JSON.stringify(note));
@@ -51,9 +60,12 @@ server.on("connection", function (sock) {
 
       sock.write(String(id));
     }
+    console.timeEnd('op')
   });
 });
 
 function saveToFile() {
-  writeFile("notes.json", JSON.stringify(notesById), () => {});
+  console.time("saveToFile");
+  writeFileSync("notes.json", JSON.stringify(notesById));
+  console.timeEnd("saveToFile");
 }

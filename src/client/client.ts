@@ -29,7 +29,7 @@ const Note = {
       );
     });
   },
-  async findById(id: number): Promise<NoteType> {
+  async findOne(filter: { id: number }): Promise<NoteType> {
     return new Promise((res) => {
       client.once("data", function (data) {
         const parsed = JSON.parse(String(data));
@@ -37,7 +37,9 @@ const Note = {
       });
       client.write(
         JSON.stringify({
-          findById: id,
+          findOne: {
+            filter
+          }
         })
       );
     });
@@ -80,9 +82,9 @@ async function run() {
   console.time('updateOne')
   await Note.updateOne({ id }, { body: "this was modified" });
   console.timeEnd('updateOne')
-  console.time('findById')
-  const note = await Note.findById(id);
-  console.timeEnd('findById')
+  console.time('findOne')
+  const note = await Note.findOne({ id });
+  console.timeEnd('findOne')
   assert.equal(note.body, "this was modified");
 }
 
