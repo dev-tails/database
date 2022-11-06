@@ -4,6 +4,7 @@ import { Db } from "./Db";
 async function run() {
   const db = Db();
   const Note = db.Notes;
+  const User = db.Users;
 
   console.time('insertOne')
   const id = await Note.insertOne({
@@ -29,6 +30,10 @@ async function run() {
   await Note.deleteOne({id: id2});
   const note2 = await Note.findOne({ id });
   assert.equal(null, note2);
+
+  const userId = await User.insertOne({ email: "adam@xyzdigital.com" });
+  const user = await User.findOne({ id: userId });
+  assert.equal(user.email, "adam@xyzdigital.com");
 
   db.destroy();
 }

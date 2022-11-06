@@ -1,4 +1,4 @@
-import { writeFileSync, readFileSync } from "fs";
+import { writeFileSync, readFileSync, readdirSync, mkdirSync, statSync } from "fs";
 import net from "net";
 
 console.time("init");
@@ -6,14 +6,23 @@ console.time("init");
 const port = 7070;
 const host = "127.0.0.1";
 
-let notesById: { [id: string]: any } = {};
-
+let collections = {};
 try {
-  const notesFileContents = readFileSync("notes.json");
-  if (notesFileContents) {
-    notesById = JSON.parse(String(notesFileContents));
+  const stats = statSync("db");
+  if (!stats.isDirectory()) {{
+    mkdirSync("db");
+  }}
+  const filenames = readdirSync("db");
+  for (const filename of filenames) {
+    const collectionName = filename.split('.')[0];
+    const collectionFileContents = readFileSync(`db/${filename}`);
+    if (collectionFileContents) {
+      collections[collectionName] = JSON.parse(String(collectionFileContents));
+    }
   }
-} catch (err) {}
+} catch(err) {
+  console.error(err);
+}
 
 const server = net.createServer();
 server.listen(port, host, () => {
@@ -24,17 +33,18 @@ server.on("connection", function (sock) {
   sock.on("data", function (data) {
     console.time("op");
     const jsonData = JSON.parse(String(data));
+    const collection = jsonData.collection;
     if (jsonData.find) {
       const filter = jsonData.find.filter;
       if (filter.id) {
-        const note = notesById[filter.id] || null;
+        const note = getCollection(collection)[filter.id] || null;
 
         sock.write(JSON.stringify([note]));
       } else {
         const filterKeys = Object.keys(filter);
         let notes: any[] = [];
-        for (const id of Object.keys(notesById)) {
-          const note = notesById[id];
+        for (const id of Object.keys(getCollection(collection))) {
+          const note = getCollection(collection)[id];
           let includeNote = true;
           for (const filterKey of filterKeys) {
             if (note[filterKey] !== filter[filterKey]) {
@@ -50,9 +60,9 @@ server.on("connection", function (sock) {
       }
     } else if (jsonData.deleteOne) {
       const { id } = jsonData.deleteOne;
-      delete notesById[id];
+      delete getCollection(collection)[id];
 
-      saveToFile();
+      saveToFile(collection);
 
       sock.write("0");
     } else if (jsonData.updateOne) {
@@ -60,24 +70,24 @@ server.on("connection", function (sock) {
         filter: { id },
         data,
       } = jsonData.updateOne;
-      const oldData = notesById[id];
-      notesById[id] = {
+      const oldData = getCollection(collection)[id];
+      getCollection(collection)[id] = {
         ...oldData,
         ...data,
       };
 
-      saveToFile();
+      saveToFile(collection);
 
       sock.write("0");
     } else if (jsonData.insertOne) {
       const id = new Date().getTime();
 
-      notesById[id] = {
+      getCollection(collection)[id] = {
         ...jsonData.insertOne,
         id,
       };
 
-      saveToFile();
+      saveToFile(collection);
 
       sock.write(String(id));
     }
@@ -85,22 +95,16 @@ server.on("connection", function (sock) {
   });
 });
 
-function saveToFile() {
+function saveToFile(collection: string) {
   console.time("saveToFile");
-  writeFileSync("notes.json", JSON.stringify(notesById));
+  writeFileSync(`db/${collection}.json`, JSON.stringify(getCollection(collection)));
   console.timeEnd("saveToFile");
 }
 
-function shallowEqual(object1, object2) {
-  const keys1 = Object.keys(object1);
-  const keys2 = Object.keys(object2);
-  if (keys1.length !== keys2.length) {
-    return false;
+function getCollection(collection: string) {
+  if (collections[collection]) {
+    return collections[collection];
   }
-  for (let key of keys1) {
-    if (object1[key] !== object2[key]) {
-      return false;
-    }
-  }
-  return true;
+  collections[collection] = {}
+  return collections[collection];
 }

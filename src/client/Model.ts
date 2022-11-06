@@ -9,6 +9,7 @@ export function Model<T>(collection: string, client: Socket) {
         });
         client.write(
           JSON.stringify({
+            collection,
             insertOne: data,
           })
         );
@@ -22,6 +23,7 @@ export function Model<T>(collection: string, client: Socket) {
         });
         client.write(
           JSON.stringify({
+            collection,
             find: {
               filter,
             },
@@ -37,6 +39,7 @@ export function Model<T>(collection: string, client: Socket) {
         });
         client.write(
           JSON.stringify({
+            collection,
             find: {
               filter,
             },
@@ -51,6 +54,7 @@ export function Model<T>(collection: string, client: Socket) {
         });
         client.write(
           JSON.stringify({
+            collection,
             updateOne: {
               filter,
               data,
@@ -66,6 +70,7 @@ export function Model<T>(collection: string, client: Socket) {
         });
         client.write(
           JSON.stringify({
+            collection,
             deleteOne: data,
           })
         );
