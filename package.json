@@ -1,0 +1,12 @@
+{
+  "name": "database",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "esbuild src/database.ts --bundle --platform=node --outfile=built/database.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.15.13"
+  }
+}
