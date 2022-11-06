@@ -1,94 +1,10 @@
 import assert from "assert";
-import net from "net";
-const client = new net.Socket();
-const port = 7070;
-const host = "127.0.0.1";
-
-client.connect(port, host, function () {
-  console.log("connected");
-});
-
-client.on("close", function () {
-  console.log("Connection closed");
-});
-
-type NoteType = {
-  body: string;
-};
-
-const Note = {
-  async insertOne(data: NoteType): Promise<number> {
-    return new Promise((res) => {
-      client.once("data", function (data) {
-        res(parseInt(String(data)));
-      });
-      client.write(
-        JSON.stringify({
-          insertOne: data,
-        })
-      );
-    });
-  },
-  async find(filter: { id?: number }): Promise<NoteType[]> {
-    return new Promise((res) => {
-      client.once("data", function (data) {
-        const parsed = JSON.parse(String(data));
-        res(parsed);
-      });
-      client.write(
-        JSON.stringify({
-          find: {
-            filter
-          }
-        })
-      );
-    });
-  },
-  async findOne(filter: { id: number }): Promise<NoteType> {
-    return new Promise((res) => {
-      client.once("data", function (data) {
-        const parsed = JSON.parse(String(data));
-        res(parsed[0]);
-      });
-      client.write(
-        JSON.stringify({
-          find: {
-            filter
-          }
-        })
-      );
-    });
-  },
-  async updateOne(filter: any, data: any): Promise<void> {
-    return new Promise((res) => {
-      client.once("data", function (data) {
-        res();
-      });
-      client.write(
-        JSON.stringify({
-          updateOne: {
-            filter,
-            data,
-          },
-        })
-      );
-    });
-  },
-  async deleteOne(data: any): Promise<void> {
-    return new Promise((res) => {
-      client.once("data", function (data) {
-        res();
-      });
-      client.write(
-        JSON.stringify({
-          deleteOne: data,
-        })
-      );
-    });
-  },
-};
+import { Db } from "./Db";
 
 async function run() {
+  const db = Db();
+  const Note = db.Notes;
+
   console.time('insertOne')
   const id = await Note.insertOne({
     body: "this is a test",
@@ -114,7 +30,7 @@ async function run() {
   const note2 = await Note.findOne({ id });
   assert.equal(null, note2);
 
-  client.destroy();
+  db.destroy();
 }
 
 run();
