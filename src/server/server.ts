@@ -24,11 +24,29 @@ server.on("connection", function (sock) {
   sock.on("data", function (data) {
     console.time("op");
     const jsonData = JSON.parse(String(data));
-    if (jsonData.findOne) {
-      const { id } = jsonData.findOne.filter;
-      const note = notesById[id] || null;
+    if (jsonData.find) {
+      const filter = jsonData.find.filter;
+      if (filter.id) {
+        const note = notesById[filter.id] || null;
 
-      sock.write(JSON.stringify(note));
+        return sock.write(JSON.stringify([note]));
+      }
+
+      const filterKeys = Object.keys(filter);
+      let notes: any[] = [];
+      for (const id of Object.keys(notesById)) {
+        const note = notesById[id];
+        let includeNote = true;
+        for (const filterKey of filterKeys) {
+          if (note[filterKey] !== filter[filterKey]) {
+            includeNote = false;
+            break;
+          }
+        }
+        if (includeNote) {
+          notes.push(note);
+        }
+      }
     } else if (jsonData.deleteOne) {
       const { id } = jsonData.deleteOne;
       delete notesById[id];
@@ -70,4 +88,18 @@ function saveToFile() {
   console.time("saveToFile");
   writeFileSync("notes.json", JSON.stringify(notesById));
   console.timeEnd("saveToFile");
+}
+
+function shallowEqual(object1, object2) {
+  const keys1 = Object.keys(object1);
+  const keys2 = Object.keys(object2);
+  if (keys1.length !== keys2.length) {
+    return false;
+  }
+  for (let key of keys1) {
+    if (object1[key] !== object2[key]) {
+      return false;
+    }
+  }
+  return true;
 }

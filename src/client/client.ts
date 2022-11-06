@@ -29,7 +29,7 @@ const Note = {
       );
     });
   },
-  async findOne(filter: { id: number }): Promise<NoteType> {
+  async find(filter: { id?: number }): Promise<NoteType[]> {
     return new Promise((res) => {
       client.once("data", function (data) {
         const parsed = JSON.parse(String(data));
@@ -37,7 +37,22 @@ const Note = {
       });
       client.write(
         JSON.stringify({
-          findOne: {
+          find: {
+            filter
+          }
+        })
+      );
+    });
+  },
+  async findOne(filter: { id: number }): Promise<NoteType> {
+    return new Promise((res) => {
+      client.once("data", function (data) {
+        const parsed = JSON.parse(String(data));
+        res(parsed[0]);
+      });
+      client.write(
+        JSON.stringify({
+          find: {
             filter
           }
         })
@@ -86,6 +101,14 @@ async function run() {
   const note = await Note.findOne({ id });
   console.timeEnd('findOne')
   assert.equal(note.body, "this was modified");
+
+  const id2 = await Note.insertOne({
+    body: "this is a test",
+  });
+
+  const notes = await Note.find({});
+  assert.equal(notes.length, 2);
+
   await Note.deleteOne({id});
   const note2 = await Note.findOne({ id });
   assert.equal(null, note2);
