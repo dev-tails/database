@@ -16,7 +16,7 @@ type NoteType = {
 };
 
 const Note = {
-  async create(data: NoteType) {
+  async create(data: NoteType): Promise<number> {
     return new Promise((res) => {
       client.once("data", function (data) {
         res(parseInt(String(data)));
@@ -28,12 +28,18 @@ const Note = {
       );
     });
   },
-  async findById(id: string) {
-    client.write(
-      JSON.stringify({
-        findById: id,
-      })
-    );
+  async findById(id: number) {
+    return new Promise((res) => {
+      client.once("data", function (data) {
+        const parsed = JSON.parse(String(data));
+        res(parsed);
+      });
+      client.write(
+        JSON.stringify({
+          findById: id,
+        })
+      );
+    })
   },
 };
 
@@ -41,7 +47,8 @@ async function run() {
   const id = await Note.create({
     body: "this is a test",
   });
-  console.log(id);
+  const note = await Note.findById(id);
+  console.log(note);
 }
 
 run();

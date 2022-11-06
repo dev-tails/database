@@ -3,7 +3,7 @@ import net from "net";
 const port = 7070;
 const host = "127.0.0.1";
 
-const notes: any[] = [];
+const notesById: { [id: string]: any } = {};
 
 const server = net.createServer();
 server.listen(port, host, () => {
@@ -13,15 +13,22 @@ server.listen(port, host, () => {
 server.on("connection", function (sock) {
   sock.on("data", function (data) {
     const jsonData = JSON.parse(String(data));
-    const id = new Date().getTime();
+    if (jsonData.findById) {
+      const id = jsonData.findById;
+      const note = notesById[id];
 
-    notes.push({
-      ...jsonData,
-      id,
-    });
+      sock.write(JSON.stringify(note));
+    } else {
+      const id = new Date().getTime();
 
-    writeFile("notes.json", JSON.stringify(notes), () => {});
+      notesById[id] = {
+        ...jsonData,
+        id,
+      };
 
-    sock.write(String(id));
+      writeFile("notes.json", JSON.stringify(notesById), () => {});
+
+      sock.write(String(id));
+    }
   });
 });
