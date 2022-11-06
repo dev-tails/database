@@ -86,6 +86,10 @@ async function run() {
   const note = await Note.findOne({ id });
   console.timeEnd('findOne')
   assert.equal(note.body, "this was modified");
+  await Note.deleteOne({id});
+  const note2 = await Note.findOne({ id });
+  assert.equal(null, note2);
+
   client.destroy();
 }
 

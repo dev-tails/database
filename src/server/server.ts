@@ -8,10 +8,12 @@ const host = "127.0.0.1";
 
 let notesById: { [id: string]: any } = {};
 
-const notesFileContents = readFileSync("notes.json");
-if (notesFileContents) {
-  notesById = JSON.parse(String(notesFileContents));
-}
+try {
+  const notesFileContents = readFileSync("notes.json");
+  if (notesFileContents) {
+    notesById = JSON.parse(String(notesFileContents));
+  }
+} catch (err) {}
 
 const server = net.createServer();
 server.listen(port, host, () => {
@@ -20,11 +22,11 @@ server.listen(port, host, () => {
 
 server.on("connection", function (sock) {
   sock.on("data", function (data) {
-    console.time('op')
+    console.time("op");
     const jsonData = JSON.parse(String(data));
     if (jsonData.findOne) {
       const { id } = jsonData.findOne.filter;
-      const note = notesById[id];
+      const note = notesById[id] || null;
 
       sock.write(JSON.stringify(note));
     } else if (jsonData.deleteOne) {
@@ -60,7 +62,7 @@ server.on("connection", function (sock) {
 
       sock.write(String(id));
     }
-    console.timeEnd('op')
+    console.timeEnd("op");
   });
 });
 
