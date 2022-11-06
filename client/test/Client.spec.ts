@@ -1,10 +1,11 @@
 import assert from "assert";
-import { Db } from "./Db";
+import { Client } from "../src/Client";
 
 async function run() {
-  const db = Db();
-  const Note = db.Notes;
-  const User = db.Users;
+  const client = new Client("127.0.0.1:7070");
+  const db = await client.connect();
+  const Note = db.Note;
+  const User = db.User;
 
   console.time('insertOne')
   const id = await Note.insertOne({
@@ -35,7 +36,7 @@ async function run() {
   const user = await User.findOne({ id: userId });
   assert.equal(user.email, "adam@xyzdigital.com");
 
-  db.destroy();
+  client.close();
 }
 
 run();
