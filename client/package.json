@@ -1,0 +1,6 @@
+{
+  "name": "@engramhq/db",
+  "version": "0.0.1",
+  "main": "built/index.js",
+  "license": "MIT"
+}

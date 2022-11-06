@@ -1,7 +1,7 @@
 import { Socket } from "net";
 import { Model } from "./Model";
 
-type NoteType = {
+export type NoteType = {
   id: number;
   body: string;
 }

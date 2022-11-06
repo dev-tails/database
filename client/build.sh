@@ -1,1 +1,1 @@
-esbuild src/test/Client.spec.ts --bundle --platform=node --outdir=built
+esbuild src/index.ts --bundle --platform=node --outfile=built/index.js
