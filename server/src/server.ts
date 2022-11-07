@@ -38,15 +38,15 @@ server.on("connection", function (sock) {
     const collection = jsonData.collection;
     if (jsonData.find) {
       const filter = jsonData.find.filter;
-      if (filter.id) {
-        const note = getCollection(collection)[filter.id] || null;
+      if (filter._id) {
+        const note = getCollection(collection)[filter._id] || null;
 
         sock.write(JSON.stringify([note]));
       } else {
         const filterKeys = Object.keys(filter);
         let notes: any[] = [];
-        for (const id of Object.keys(getCollection(collection))) {
-          const note = getCollection(collection)[id];
+        for (const _id of Object.keys(getCollection(collection))) {
+          const note = getCollection(collection)[_id];
           let includeNote = true;
           for (const filterKey of filterKeys) {
             if (note[filterKey] !== filter[filterKey]) {
@@ -61,19 +61,19 @@ server.on("connection", function (sock) {
         sock.write(JSON.stringify(notes));
       }
     } else if (jsonData.deleteOne) {
-      const { id } = jsonData.deleteOne;
-      delete getCollection(collection)[id];
+      const { _id } = jsonData.deleteOne;
+      delete getCollection(collection)[_id];
 
       saveToFile(collection);
 
       sock.write("0");
     } else if (jsonData.updateOne) {
       const {
-        filter: { id },
+        filter: { _id },
         data,
       } = jsonData.updateOne;
-      const oldData = getCollection(collection)[id];
-      getCollection(collection)[id] = {
+      const oldData = getCollection(collection)[_id];
+      getCollection(collection)[_id] = {
         ...oldData,
         ...data,
       };
@@ -82,16 +82,16 @@ server.on("connection", function (sock) {
 
       sock.write("0");
     } else if (jsonData.insertOne) {
-      const id = new Date().getTime();
+      const _id = new Date().getTime();
 
-      getCollection(collection)[id] = {
+      getCollection(collection)[_id] = {
         ...jsonData.insertOne,
-        id,
+        _id,
       };
 
       saveToFile(collection);
 
-      sock.write(String(id));
+      sock.write(String(_id));
     }
     console.timeEnd("op");
   });
